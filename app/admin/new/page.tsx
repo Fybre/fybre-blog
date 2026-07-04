@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Editor from '@/components/Editor';
-import Link from 'next/link';
 import { toast } from 'sonner';
 import AIAssistControls from '@/components/AIAssistControls';
+import EditorTopBar from '@/components/EditorTopBar';
 
 export default function NewPostPage() {
   const [title, setTitle] = useState('');
@@ -69,20 +69,15 @@ export default function NewPostPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href="/admin" className="text-sm text-[var(--muted)] hover:text-[var(--fg)]">← Back to admin</Link>
-          <div className="flex gap-2">
-            <button
-              onClick={handleSave}
-              disabled={saving || !defaultLoaded}
-              className="btn btn-primary"
-            >
-              {saving ? 'Saving...' : 'Save'}
-            </button>
-          </div>
-        </div>
-      </div>
+      <EditorTopBar backHref="/" backLabel="← All posts">
+        <button
+          onClick={handleSave}
+          disabled={saving || !defaultLoaded}
+          className="btn btn-primary"
+        >
+          {saving ? 'Saving...' : 'Save'}
+        </button>
+      </EditorTopBar>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
         <input

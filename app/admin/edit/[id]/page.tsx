@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { toast } from 'sonner';
 import AttachmentManager from './AttachmentManager';
 import AIAssistControls from '@/components/AIAssistControls';
+import EditorTopBar from '@/components/EditorTopBar';
 
 interface PostData {
   id: number;
@@ -90,23 +91,16 @@ export default function EditPostPage() {
 
   return (
     <div className="min-h-screen">
-      <div className="border-b border-[var(--border)] bg-[var(--card)] sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-6 h-14 flex items-center justify-between">
-          <Link href={slug ? `/posts/${slug}` : '/'} className="text-sm text-[var(--muted)] hover:text-[var(--fg)]">
-            {slug ? '← Back to post' : '← All posts'}
+      <EditorTopBar backHref={slug ? `/posts/${slug}` : '/'} backLabel={slug ? '← Back to post' : '← All posts'}>
+        {slug && (
+          <Link href={`/posts/${slug}`} className="btn btn-secondary text-sm" target="_blank">
+            View live
           </Link>
-          <div className="flex gap-2">
-            {slug && (
-              <Link href={`/posts/${slug}`} className="btn btn-secondary text-sm" target="_blank">
-                View live
-              </Link>
-            )}
-            <button onClick={handleSave} disabled={saving} className="btn btn-primary">
-              {saving ? 'Saving...' : 'Save changes'}
-            </button>
-          </div>
-        </div>
-      </div>
+        )}
+        <button onClick={handleSave} disabled={saving} className="btn btn-primary">
+          {saving ? 'Saving...' : 'Save changes'}
+        </button>
+      </EditorTopBar>
 
       <div className="max-w-3xl mx-auto px-6 py-8">
         <input
