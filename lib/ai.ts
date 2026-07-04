@@ -26,6 +26,15 @@ function endpointFor(baseUrl: string) {
   return `${clean || 'https://api.openai.com/v1'}/chat/completions`;
 }
 
+function modelsEndpointFor(baseUrl: string) {
+  const clean = baseUrl.trim().replace(/\/+$/, '');
+  return `${clean || 'https://api.openai.com/v1'}/models`;
+}
+
+function authHeaders(apiKey: string): Record<string, string> {
+  return apiKey.trim() ? { Authorization: `Bearer ${apiKey.trim()}` } : {};
+}
+
 export function getAISettings() {
   return {
     enabled: getSetting('ai_enabled') === 'true',
@@ -53,7 +62,6 @@ function parseTags(text: string): string[] {
 export async function runAITask(request: AIRequest) {
   const settings = getAISettings();
   if (!settings.enabled) throw new Error('AI is not enabled');
-  if (!settings.apiKey) throw new Error('AI API key is not configured');
   if (!settings.model.trim()) throw new Error('AI model is not configured');
 
   const plainText = stripHtml(request.content).slice(0, 12000);
@@ -62,7 +70,7 @@ export async function runAITask(request: AIRequest) {
   const response = await fetch(endpointFor(settings.baseUrl), {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${settings.apiKey}`,
+      ...authHeaders(settings.apiKey),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
@@ -109,4 +117,30 @@ export async function runAITask(request: AIRequest) {
   }
 
   return { result: text };
+}
+
+export async function listAIModels(input?: { baseUrl?: string; apiKey?: string }) {
+  const settings = getAISettings();
+  const baseUrl = input?.baseUrl?.trim() || settings.baseUrl;
+  const apiKey = input?.apiKey?.trim() || settings.apiKey;
+
+  const response = await fetch(modelsEndpointFor(baseUrl), {
+    headers: {
+      ...authHeaders(apiKey),
+    },
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => '');
+    throw new Error(errorText || `Model list request failed with HTTP ${response.status}`);
+  }
+
+  const data = (await response.json()) as {
+    data?: Array<{ id?: unknown; object?: unknown }>;
+  };
+
+  return (data.data || [])
+    .map((model) => (typeof model.id === 'string' ? model.id : ''))
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
 }

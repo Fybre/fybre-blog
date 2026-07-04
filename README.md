@@ -100,7 +100,7 @@ After logging in, use `/admin` to configure:
 - **Default post visibility** — controls the initial Public checkbox state for new posts.
 - **Theme** — system, light, dark, midnight, evergreen, warm, or modern.
 - **Typography** — system, editorial, modern, mono accent, or classic.
-- **AI writer assist** — optional OpenAI-compatible endpoint, model, and API key.
+- **AI writer assist** — optional OpenAI-compatible endpoint, model picker, and API key.
 - **Tags** — rename, merge, or delete tags globally.
 
 Posts are edited and deleted from the main page while logged in.
@@ -213,6 +213,7 @@ Local data is still stored in:
 
 - Always set a strong `JWT_SECRET`.
 - AI API keys are stored in the SQLite database; only configure this on a host you control.
+- The AI settings page can query `{base URL}/models` to select a model; local endpoints may not require an API key.
 - Put the app behind HTTPS if exposed publicly.
 - Back up both `data/` and `public/uploads/`.
 - `data/attachments/` is inside `data/`, so it is included when backing up `data/`.

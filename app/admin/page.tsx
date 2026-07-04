@@ -10,6 +10,7 @@ import SocialLinksEditor from './SocialLinksEditor';
 import { getSocialLinks, setSocialLinks } from '@/lib/socialLinks';
 import TypographyPicker from './TypographyPicker';
 import { getSession } from '@/lib/auth';
+import AISettings from './AISettings';
 
 export default async function AdminPage({
   searchParams,
@@ -138,34 +139,7 @@ export default async function AdminPage({
 
             <SocialLinksEditor initialLinks={socialLinks} />
 
-            <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)]/40 p-4">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h3 className="font-medium">AI writer assist</h3>
-                  <p className="mt-1 text-xs text-[var(--muted)]">
-                    Optional OpenAI-compatible endpoint for improving drafts, summaries, titles, and tags.
-                  </p>
-                </div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input name="ai_enabled" type="checkbox" defaultChecked={aiEnabled} className="accent-[var(--accent)]" />
-                  Enabled
-                </label>
-              </div>
-              <div className="mt-4 grid gap-4">
-                <label className="block text-sm text-[var(--muted)]">
-                  Base URL
-                  <input name="ai_base_url" defaultValue={aiBaseUrl} className="input mt-1.5" placeholder="https://api.openai.com/v1" />
-                </label>
-                <label className="block text-sm text-[var(--muted)]">
-                  Model
-                  <input name="ai_model" defaultValue={aiModel} className="input mt-1.5" placeholder="gpt-4o-mini" />
-                </label>
-                <label className="block text-sm text-[var(--muted)]">
-                  API key
-                  <input name="ai_api_key" type="password" className="input mt-1.5" placeholder={aiHasApiKey ? 'Saved — leave blank to keep existing key' : 'sk-...'} />
-                </label>
-              </div>
-            </div>
+            <AISettings enabled={aiEnabled} baseUrl={aiBaseUrl} model={aiModel} hasApiKey={aiHasApiKey} />
 
             <div>
               <label className="block text-sm mb-2 text-[var(--muted)]">Default post visibility</label>
