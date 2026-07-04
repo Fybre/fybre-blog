@@ -255,3 +255,7 @@ docker compose logs -f blog
 - TipTap editor
 - Tailwind CSS
 - Docker / Docker Compose
+
+## Attribution
+
+Built collaboratively with OpenAI Codex.
