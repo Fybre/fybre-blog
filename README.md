@@ -4,12 +4,12 @@ Fybre Blog is a small, self-hosted personal blog built with Next.js, SQLite, and
 
 ## Features
 
-- Rich text editor with headings, lists, quotes, links, images, paste/drop screenshots, and syntax-highlighted code blocks.
+- Rich text editor with headings, lists, quotes, links, images, paste/drop screenshots, syntax-highlighted code blocks, and downloadable attachments.
 - Public and private posts, with a configurable default visibility.
 - Main-page search, tag filtering, sorting, and user-selectable card layouts.
 - Admin settings for site title, hero text, new post button text, themes, typography, and custom main-page links.
 - Tag management for renaming, merging, and deleting tags.
-- Markdown ZIP export, Markdown/ZIP import, uploaded image persistence, and RSS feed at `/feed.xml`.
+- Markdown ZIP export, Markdown/ZIP import, uploaded image/attachment persistence, and RSS feed at `/feed.xml`.
 - Docker-first deployment with SQLite stored in `data/blog.db`.
 
 ## Recommended Setup: Docker Compose
@@ -71,7 +71,8 @@ services:
 
 These host folders should be backed up:
 
-- `data/blog.db` — SQLite database for users, posts, tags, and settings.
+- `data/blog.db` — SQLite database for users, posts, tags, settings, and attachment metadata.
+- `data/attachments/` — attached files for posts.
 - `public/uploads/` — uploaded images and screenshots.
 
 The Docker image starts as root only long enough to create/chown these mounted folders, then drops to the unprivileged `nextjs` user before running the app.
@@ -111,8 +112,9 @@ Go to `/admin/new` while logged in.
 - Add tags as comma-separated values.
 - Paste or drag images directly into the editor, or use the image button.
 - Use the `<>` code block button and language selector for highlighted code.
+- Add downloadable attachments after the first save from the edit screen.
 
-Private posts are visible only while logged in and are marked with a private badge.
+Private posts and their attachments are visible only while logged in.
 
 ## Import, Export, and RSS
 
@@ -124,6 +126,7 @@ The downloaded ZIP includes:
 
 - `posts/*.md`
 - referenced files from `uploads/`
+- attached files under `attachments/`
 
 ### Import Markdown
 
@@ -208,6 +211,7 @@ Local data is still stored in:
 - Always set a strong `JWT_SECRET`.
 - Put the app behind HTTPS if exposed publicly.
 - Back up both `data/` and `public/uploads/`.
+- `data/attachments/` is inside `data/`, so it is included when backing up `data/`.
 - The app uses SQLite, which is ideal for a personal blog but not intended for high-concurrency multi-author publishing.
 - Uploaded images are stored locally, so ensure your hosting volume is persistent.
 

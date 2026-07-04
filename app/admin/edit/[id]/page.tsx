@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Editor from '@/components/Editor';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import AttachmentManager from './AttachmentManager';
 
 interface PostData {
   id: number;
@@ -140,6 +141,10 @@ export default function EditPostPage() {
             className="input"
             placeholder="react, design"
           />
+        </div>
+
+        <div className="mt-6">
+          <AttachmentManager postId={id} />
         </div>
 
         <div className="mt-8 text-xs text-[var(--muted)]">

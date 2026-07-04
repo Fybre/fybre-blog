@@ -1,6 +1,7 @@
 import { db } from './db';
 import { Post, PostSortMode, PostWithTags } from './types';
 import { slugify } from './utils';
+import { deleteAttachmentsForPost } from './attachments';
 
 function getOrderBy(sort: PostSortMode = 'newest', prefix = '') {
   const column = (name: string) => `${prefix}${name}`;
@@ -213,6 +214,7 @@ export function updatePost(
 }
 
 export function deletePost(id: number) {
+  deleteAttachmentsForPost(id);
   db.prepare('DELETE FROM posts WHERE id = ?').run(id);
 }
 

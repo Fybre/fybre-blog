@@ -124,6 +124,10 @@ export default function NewPostPage() {
             className="input"
           />
         </div>
+
+        <div className="mt-6 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/45 p-4 text-sm text-[var(--muted)]">
+          Attachments can be added after the first save.
+        </div>
       </div>
     </div>
   );

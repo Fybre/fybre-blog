@@ -4,6 +4,7 @@ import fs from 'fs';
 
 const dataDir = path.join(/*turbopackIgnore: true*/ process.cwd(), 'data');
 const uploadsDir = path.join(/*turbopackIgnore: true*/ process.cwd(), 'public', 'uploads');
+const attachmentsDir = path.join(/*turbopackIgnore: true*/ dataDir, 'attachments');
 
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -11,11 +12,15 @@ if (!fs.existsSync(dataDir)) {
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
+if (!fs.existsSync(attachmentsDir)) {
+  fs.mkdirSync(attachmentsDir, { recursive: true });
+}
 
 const dbPath = path.join(/*turbopackIgnore: true*/ dataDir, 'blog.db');
 const db = new Database(dbPath);
 
 db.pragma('journal_mode = DELETE'); // Use DELETE instead of WAL to prevent hangs on Docker Mac volume mounts
+db.pragma('foreign_keys = ON');
 
 // Initialize schema
 db.exec(`
@@ -52,6 +57,17 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS settings (
     key TEXT PRIMARY KEY,
     value TEXT NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS post_attachments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    post_id INTEGER NOT NULL,
+    stored_name TEXT UNIQUE NOT NULL,
+    original_name TEXT NOT NULL,
+    mime_type TEXT NOT NULL,
+    size INTEGER NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
   );
 `);
 
@@ -116,4 +132,4 @@ if (!getSetting('social_website')) {
   setSetting('social_website', '');
 }
 
-export { db, getSetting, setSetting, uploadsDir };
+export { db, getSetting, setSetting, uploadsDir, attachmentsDir };

@@ -19,6 +19,16 @@ export interface PostWithTags extends Post {
   tags: string[];
 }
 
+export interface Attachment {
+  id: number;
+  post_id: number;
+  stored_name: string;
+  original_name: string;
+  mime_type: string;
+  size: number;
+  created_at: string;
+}
+
 export interface SettingKey {
   default_visibility: 'public' | 'private';
   theme: Theme;

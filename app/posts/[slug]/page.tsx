@@ -1,12 +1,14 @@
 import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import { getPostBySlug } from '@/lib/posts';
-import { formatDate, getExcerpt, getReadingTime } from '@/lib/utils';
+import { formatBytes, formatDate, getExcerpt, getReadingTime } from '@/lib/utils';
 import { getSession } from '@/lib/auth';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getSetting } from '@/lib/db';
 import { highlightCodeHtml } from '@/lib/codeHighlight';
+import { getAttachmentsForPost } from '@/lib/attachments';
+import { Download, Paperclip } from 'lucide-react';
 
 const escapeAttribute = (value: string) => value.replace(/"/g, '&quot;');
 
@@ -62,6 +64,8 @@ export default async function PostPage({
     notFound();
   }
 
+  const attachments = getAttachmentsForPost(post.id);
+
   return (
     <>
       <Header />
@@ -103,6 +107,30 @@ export default async function PostPage({
               className="prose" 
               dangerouslySetInnerHTML={{ __html: enhanceCodeBlocks(post.content) }} 
             />
+
+            {attachments.length > 0 && (
+              <section className="mt-10 border-t border-[var(--border)] pt-6">
+                <h2 className="mb-3 flex items-center gap-2 text-base font-semibold">
+                  <Paperclip size={16} />
+                  Attachments
+                </h2>
+                <div className="space-y-2">
+                  {attachments.map((attachment) => (
+                    <a
+                      key={attachment.id}
+                      href={`/api/attachments/${attachment.id}`}
+                      className="post-card-link flex items-center justify-between gap-4 rounded-2xl border border-[var(--border)] bg-[var(--bg)]/45 px-4 py-3 transition-all hover:border-[var(--accent)] hover:bg-[var(--bg)]"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium">{attachment.original_name}</span>
+                        <span className="block text-xs text-[var(--muted)]">{formatBytes(attachment.size)}</span>
+                      </span>
+                      <Download size={16} className="shrink-0 text-[var(--muted)]" />
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
           </article>
 
           {session && (
