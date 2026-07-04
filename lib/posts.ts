@@ -78,10 +78,16 @@ export function searchPosts(query: string, tag?: string, includePrivate = false,
     sql += ' AND p.is_public = 1';
   }
 
-  if (query.trim()) {
-    const q = `%${query.trim().toLowerCase()}%`;
-    sql += ' AND (LOWER(p.title) LIKE ? OR LOWER(p.content) LIKE ?)';
-    params.push(q, q);
+  const searchTerms = query
+    .toLowerCase()
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(Boolean);
+
+  for (const term of searchTerms) {
+    const q = `%${term}%`;
+    sql += ' AND (LOWER(p.title) LIKE ? OR LOWER(p.content) LIKE ? OR LOWER(t.name) LIKE ?)';
+    params.push(q, q, q);
   }
 
   if (tag) {

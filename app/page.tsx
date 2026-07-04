@@ -33,16 +33,22 @@ function getPostSortMode(value: string | undefined): PostSortMode {
 }
 
 function HighlightedText({ text, query }: { text: string; query: string }) {
-  const clean = query.trim();
-  if (!clean) return text;
+  const terms = query
+    .trim()
+    .split(/\s+/)
+    .map((term) => term.trim())
+    .filter(Boolean);
 
-  const escaped = clean.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+  if (terms.length === 0) return text;
+
+  const escaped = terms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const parts = text.split(new RegExp(`(${escaped.join('|')})`, 'gi'));
+  const lowerTerms = new Set(terms.map((term) => term.toLowerCase()));
 
   return (
     <>
       {parts.map((part, index) =>
-        part.toLowerCase() === clean.toLowerCase() ? (
+        lowerTerms.has(part.toLowerCase()) ? (
           <mark key={`${part}-${index}`} className="rounded bg-amber-300/35 px-0.5 text-inherit">
             {part}
           </mark>
