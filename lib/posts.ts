@@ -65,38 +65,72 @@ export function getPostById(id: number): PostWithTags | null {
 }
 
 export function searchPosts(query: string, tag?: string, includePrivate = false, sort: PostSortMode = 'newest'): PostWithTags[] {
-  let sql = `
-    SELECT DISTINCT p.id, p.title, p.slug, p.content, p.is_public, p.created_at, p.updated_at
-    FROM posts p
-    LEFT JOIN post_tags pt ON p.id = pt.post_id
-    LEFT JOIN tags t ON pt.tag_id = t.id
-    WHERE 1=1
-  `;
-  const params: string[] = [];
-
-  if (!includePrivate) {
-    sql += ' AND p.is_public = 1';
-  }
-
   const searchTerms = query
     .toLowerCase()
     .split(/\s+/)
     .map((term) => term.trim())
     .filter(Boolean);
+  const scoreClauses: string[] = [];
+  const scoreParams: string[] = [];
+  const whereParams: string[] = [];
 
   for (const term of searchTerms) {
     const q = `%${term}%`;
-    sql += ' AND (LOWER(p.title) LIKE ? OR LOWER(p.content) LIKE ? OR LOWER(t.name) LIKE ?)';
-    params.push(q, q, q);
+    scoreClauses.push(`
+      CASE WHEN LOWER(p.title) LIKE ? THEN 4 ELSE 0 END +
+      CASE WHEN EXISTS (
+        SELECT 1 FROM post_tags spt
+        JOIN tags st ON st.id = spt.tag_id
+        WHERE spt.post_id = p.id AND LOWER(st.name) LIKE ?
+      ) THEN 3 ELSE 0 END +
+      CASE WHEN LOWER(p.content) LIKE ? THEN 1 ELSE 0 END
+    `);
+    scoreParams.push(q, q, q);
+  }
+
+  const relevanceScore = scoreClauses.length > 0 ? scoreClauses.join(' + ') : '0';
+
+  let sql = `
+    SELECT p.id, p.title, p.slug, p.content, p.is_public, p.created_at, p.updated_at,
+           (${relevanceScore}) AS relevance
+    FROM posts p
+    WHERE 1=1
+  `;
+
+  if (!includePrivate) {
+    sql += ' AND p.is_public = 1';
+  }
+
+  for (const term of searchTerms) {
+    const q = `%${term}%`;
+    sql += `
+      AND (
+        LOWER(p.title) LIKE ?
+        OR LOWER(p.content) LIKE ?
+        OR EXISTS (
+          SELECT 1 FROM post_tags wpt
+          JOIN tags wt ON wt.id = wpt.tag_id
+          WHERE wpt.post_id = p.id AND LOWER(wt.name) LIKE ?
+        )
+      )
+    `;
+    whereParams.push(q, q, q);
   }
 
   if (tag) {
-    sql += ' AND LOWER(t.name) = ?';
-    params.push(tag.toLowerCase());
+    sql += `
+      AND EXISTS (
+        SELECT 1 FROM post_tags fpt
+        JOIN tags ft ON ft.id = fpt.tag_id
+        WHERE fpt.post_id = p.id AND LOWER(ft.name) = ?
+      )
+    `;
+    whereParams.push(tag.toLowerCase());
   }
 
-  sql += ` ORDER BY ${getOrderBy(sort, 'p.')}`;
+  sql += ` ORDER BY ${searchTerms.length > 0 ? 'relevance DESC, ' : ''}${getOrderBy(sort, 'p.')}`;
 
+  const params = [...scoreParams, ...whereParams];
   const posts = db.prepare(sql).all(...params) as Post[];
 
   return posts.map((post) => ({
