@@ -23,12 +23,12 @@ const taskPrompts: Record<AITask, string> = {
 
 function endpointFor(baseUrl: string) {
   const clean = baseUrl.trim().replace(/\/+$/, '');
-  return `${clean || 'https://api.openai.com/v1'}/chat/completions`;
+  return `${clean}/chat/completions`;
 }
 
 function modelsEndpointFor(baseUrl: string) {
   const clean = baseUrl.trim().replace(/\/+$/, '');
-  return `${clean || 'https://api.openai.com/v1'}/models`;
+  return `${clean}/models`;
 }
 
 function authHeaders(apiKey: string): Record<string, string> {
@@ -38,8 +38,8 @@ function authHeaders(apiKey: string): Record<string, string> {
 export function getAISettings() {
   return {
     enabled: getSetting('ai_enabled') === 'true',
-    baseUrl: getSetting('ai_base_url') || 'https://api.openai.com/v1',
-    model: getSetting('ai_model') || 'gpt-4o-mini',
+    baseUrl: getSetting('ai_base_url') || '',
+    model: getSetting('ai_model') || '',
     apiKey: getSetting('ai_api_key') || '',
   };
 }
@@ -62,6 +62,7 @@ function parseTags(text: string): string[] {
 export async function runAITask(request: AIRequest) {
   const settings = getAISettings();
   if (!settings.enabled) throw new Error('AI is not enabled');
+  if (!settings.baseUrl.trim()) throw new Error('AI base URL is not configured');
   if (!settings.model.trim()) throw new Error('AI model is not configured');
 
   const plainText = stripHtml(request.content).slice(0, 12000);
@@ -123,6 +124,7 @@ export async function listAIModels(input?: { baseUrl?: string; apiKey?: string }
   const settings = getAISettings();
   const baseUrl = input?.baseUrl?.trim() || settings.baseUrl;
   const apiKey = input?.apiKey?.trim() || settings.apiKey;
+  if (!baseUrl.trim()) throw new Error('AI base URL is not configured');
 
   const response = await fetch(modelsEndpointFor(baseUrl), {
     headers: {

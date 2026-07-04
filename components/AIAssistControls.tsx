@@ -106,6 +106,10 @@ export default function AIAssistControls({
 
   const disabled = Boolean(runningTask) || configLoading || !aiReady;
 
+  if (configLoading || !aiReady) {
+    return null;
+  }
+
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/55 p-4">
       <div className="mb-3">

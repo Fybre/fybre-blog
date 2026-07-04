@@ -47,7 +47,7 @@ export default function AISettings({
         setCurrentModel(data.models[0]);
       }
       setStatus('reachable');
-      setStatusMessage(`${data.models?.length || 0} models available`);
+      setStatusMessage(`${data.models?.length || 0} models available. Choose a model, then Save settings before using AI assist.`);
       toast.success(`Loaded ${data.models?.length || 0} models`);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to load models';
@@ -81,7 +81,7 @@ export default function AISettings({
             value={currentBaseUrl}
             onChange={(event) => setCurrentBaseUrl(event.target.value)}
             className="input mt-1.5"
-            placeholder="https://api.openai.com/v1"
+            placeholder="http://host.docker.internal:1234/v1"
           />
         </label>
         <label className="block text-sm text-[var(--muted)]">
@@ -138,7 +138,7 @@ export default function AISettings({
               value={currentModel}
               onChange={(event) => setCurrentModel(event.target.value)}
               className="input"
-              placeholder="gpt-4o-mini"
+              placeholder="Load models or enter a model ID"
             />
           )}
           <p className="mt-1.5 text-xs text-[var(--muted)]">

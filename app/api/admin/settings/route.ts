@@ -8,8 +8,8 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const aiEnabled = getSetting('ai_enabled') === 'true';
-  const aiBaseUrl = getSetting('ai_base_url') || 'https://api.openai.com/v1';
-  const aiModel = getSetting('ai_model') || 'gpt-4o-mini';
+  const aiBaseUrl = getSetting('ai_base_url') || '';
+  const aiModel = getSetting('ai_model') || '';
 
   return NextResponse.json({
     default_visibility: getSetting('default_visibility') || 'public',

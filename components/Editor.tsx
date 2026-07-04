@@ -133,6 +133,12 @@ export default function Editor({ content, onChange, placeholder = 'Start writing
     };
   }, [editor, uploadImageFile]);
 
+  useEffect(() => {
+    if (!editor) return;
+    if (editor.getHTML() === content) return;
+    editor.commands.setContent(content, { emitUpdate: false });
+  }, [content, editor]);
+
   const toggleBold = useCallback(() => {
     editor?.chain().focus().toggleBold().run();
   }, [editor]);

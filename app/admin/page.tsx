@@ -30,8 +30,8 @@ export default async function AdminPage({
   const newPostButtonText = getSetting('new_post_button_text') || 'Write a story';
   const socialLinks = getSocialLinks();
   const aiEnabled = getSetting('ai_enabled') === 'true';
-  const aiBaseUrl = getSetting('ai_base_url') || 'https://api.openai.com/v1';
-  const aiModel = getSetting('ai_model') || 'gpt-4o-mini';
+  const aiBaseUrl = getSetting('ai_base_url') || '';
+  const aiModel = getSetting('ai_model') || '';
   const aiHasApiKey = Boolean(getSetting('ai_api_key'));
   const tags = getTagsWithCounts(true);
 
@@ -59,8 +59,8 @@ export default async function AdminPage({
     setSetting('new_post_button_text', newPostText.trim());
     setSocialLinks(linkTitles.map((title, index) => ({ title, url: linkUrls[index] || '' })));
     setSetting('ai_enabled', formData.get('ai_enabled') === 'on' ? 'true' : 'false');
-    setSetting('ai_base_url', ((formData.get('ai_base_url') as string) || 'https://api.openai.com/v1').trim());
-    setSetting('ai_model', ((formData.get('ai_model') as string) || 'gpt-4o-mini').trim());
+    setSetting('ai_base_url', ((formData.get('ai_base_url') as string) || '').trim());
+    setSetting('ai_model', ((formData.get('ai_model') as string) || '').trim());
     if (aiApiKey.trim()) {
       setSetting('ai_api_key', aiApiKey.trim());
     }

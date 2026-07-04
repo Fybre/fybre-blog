@@ -109,13 +109,22 @@ if (getSetting('ai_enabled') === null) {
   setSetting('ai_enabled', 'false');
 }
 if (getSetting('ai_base_url') === null) {
-  setSetting('ai_base_url', 'https://api.openai.com/v1');
+  setSetting('ai_base_url', '');
 }
 if (getSetting('ai_model') === null) {
-  setSetting('ai_model', 'gpt-4o-mini');
+  setSetting('ai_model', '');
 }
 if (getSetting('ai_api_key') === null) {
   setSetting('ai_api_key', '');
+}
+if (
+  getSetting('ai_enabled') !== 'true' &&
+  !getSetting('ai_api_key') &&
+  getSetting('ai_base_url') === 'https://api.openai.com/v1' &&
+  getSetting('ai_model') === 'gpt-4o-mini'
+) {
+  setSetting('ai_base_url', '');
+  setSetting('ai_model', '');
 }
 if (getSetting('profile_links') === null) {
   const migratedLinks = [
