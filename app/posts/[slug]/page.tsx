@@ -69,7 +69,7 @@ export default async function PostPage({
   return (
     <>
       <Header />
-      <main className="w-full max-w-3xl mx-auto px-6 py-10">
+      <main className="w-full max-w-5xl mx-auto px-6 py-10">
         <div className="w-full">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
             <Link href="/" className="text-sm text-[var(--muted)] hover:text-[var(--fg)]">
