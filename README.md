@@ -213,7 +213,7 @@ Local data is still stored in:
 
 - Always set a strong `JWT_SECRET`.
 - AI API keys are stored in the SQLite database; only configure this on a host you control.
-- The AI settings page can query `{base URL}/models` to select a model; local endpoints may not require an API key.
+- The AI settings page can query `{base URL}/models` to select a model and show whether the endpoint is reachable; local endpoints may not require an API key.
 - Put the app behind HTTPS if exposed publicly.
 - Back up both `data/` and `public/uploads/`.
 - `data/attachments/` is inside `data/`, so it is included when backing up `data/`.

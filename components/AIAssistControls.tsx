@@ -1,7 +1,7 @@
 'use client';
 
 import { Sparkles } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 type AITask = 'improve' | 'summary' | 'tags' | 'title';
@@ -32,6 +32,27 @@ export default function AIAssistControls({
 }: AIAssistControlsProps) {
   const [runningTask, setRunningTask] = useState<AITask | null>(null);
   const [summary, setSummary] = useState('');
+  const [configLoading, setConfigLoading] = useState(true);
+  const [aiReady, setAiReady] = useState(false);
+
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const res = await fetch('/api/admin/settings');
+        if (!res.ok) {
+          setAiReady(false);
+          return;
+        }
+
+        const data = await res.json();
+        setAiReady(Boolean(data.ai_ready));
+      } finally {
+        setConfigLoading(false);
+      }
+    }
+
+    loadSettings();
+  }, []);
 
   const runTask = async (task: AITask) => {
     setRunningTask(task);
@@ -83,7 +104,7 @@ export default function AIAssistControls({
     }
   };
 
-  const disabled = Boolean(runningTask);
+  const disabled = Boolean(runningTask) || configLoading || !aiReady;
 
   return (
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/55 p-4">
@@ -93,7 +114,9 @@ export default function AIAssistControls({
           AI assist
         </h2>
         <p className="mt-1 text-xs text-[var(--muted)]">
-          Uses the OpenAI-compatible endpoint configured in Admin.
+          {aiReady
+            ? 'Uses the OpenAI-compatible endpoint configured in Admin.'
+            : 'Configure and enable AI in Admin to use writing assist.'}
         </p>
       </div>
       <div className="flex flex-wrap gap-2">

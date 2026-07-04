@@ -4,6 +4,8 @@ import { RefreshCcw } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+type AIStatus = 'unknown' | 'checking' | 'reachable' | 'unreachable';
+
 export default function AISettings({
   enabled,
   baseUrl,
@@ -20,9 +22,13 @@ export default function AISettings({
   const [apiKey, setApiKey] = useState('');
   const [models, setModels] = useState<string[]>([]);
   const [loadingModels, setLoadingModels] = useState(false);
+  const [status, setStatus] = useState<AIStatus>('unknown');
+  const [statusMessage, setStatusMessage] = useState('');
 
   const loadModels = async () => {
     setLoadingModels(true);
+    setStatus('checking');
+    setStatusMessage('');
     try {
       const res = await fetch('/api/admin/ai/models', {
         method: 'POST',
@@ -40,9 +46,14 @@ export default function AISettings({
       if (data.models?.length && !data.models.includes(currentModel)) {
         setCurrentModel(data.models[0]);
       }
+      setStatus('reachable');
+      setStatusMessage(`${data.models?.length || 0} models available`);
       toast.success(`Loaded ${data.models?.length || 0} models`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to load models');
+      const message = error instanceof Error ? error.message : 'Failed to load models';
+      setStatus('unreachable');
+      setStatusMessage(message);
+      toast.error(message);
     } finally {
       setLoadingModels(false);
     }
@@ -87,10 +98,26 @@ export default function AISettings({
         <div>
           <div className="mb-1.5 flex items-center justify-between gap-3">
             <label className="block text-sm text-[var(--muted)]">Model</label>
-            <button type="button" onClick={loadModels} disabled={loadingModels} className="btn btn-secondary py-1.5 text-xs">
-              <RefreshCcw size={13} />
-              {loadingModels ? 'Loading...' : 'Load models'}
-            </button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs ${
+                  status === 'reachable'
+                    ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                    : status === 'unreachable'
+                      ? 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-300'
+                      : status === 'checking'
+                        ? 'border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-300'
+                        : 'border-[var(--border)] bg-[var(--card)]/50 text-[var(--muted)]'
+                }`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                {status === 'reachable' ? 'Reachable' : status === 'unreachable' ? 'Unavailable' : status === 'checking' ? 'Checking' : 'Not checked'}
+              </span>
+              <button type="button" onClick={loadModels} disabled={loadingModels} className="btn btn-secondary py-1.5 text-xs">
+                <RefreshCcw size={13} />
+                {loadingModels ? 'Loading...' : 'Load models'}
+              </button>
+            </div>
           </div>
           {models.length > 0 ? (
             <select
@@ -115,7 +142,7 @@ export default function AISettings({
             />
           )}
           <p className="mt-1.5 text-xs text-[var(--muted)]">
-            Uses the saved key if this field is blank; local servers often accept no key or a dummy key.
+            {statusMessage || 'Uses the saved key if this field is blank; local servers often accept no key or a dummy key.'}
           </p>
         </div>
       </div>
