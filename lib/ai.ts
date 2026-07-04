@@ -44,19 +44,47 @@ export function getAISettings() {
   };
 }
 
+function cleanTag(tag: string) {
+  return tag
+    .trim()
+    .replace(/^[\s"'`\-[\]]+|[\s"'`\-[\]]+$/g, '')
+    .trim();
+}
+
+function splitTagCandidates(text: string) {
+  return text
+    .split(/[,;\n]/)
+    .map(cleanTag)
+    .filter(Boolean);
+}
+
+function normalizeTagResponse(text: string) {
+  return text
+    .trim()
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/```$/i, '')
+    .replace(/^json\s*/i, '')
+    .trim();
+}
+
 function parseTags(text: string): string[] {
+  const normalized = normalizeTagResponse(text);
+  const arrayStart = normalized.indexOf('[');
+  const arrayEnd = normalized.lastIndexOf(']');
+  const jsonCandidate = arrayStart >= 0 && arrayEnd > arrayStart
+    ? normalized.slice(arrayStart, arrayEnd + 1)
+    : normalized;
+
   try {
-    const parsed = JSON.parse(text);
+    const parsed = JSON.parse(jsonCandidate);
     if (Array.isArray(parsed)) {
-      return parsed.filter((tag): tag is string => typeof tag === 'string').map((tag) => tag.trim()).filter(Boolean);
+      return parsed
+        .filter((tag): tag is string => typeof tag === 'string')
+        .flatMap(splitTagCandidates);
     }
   } catch {}
 
-  return text
-    .replace(/^[\s"'`[]+|[\s"'`\]]+$/g, '')
-    .split(',')
-    .map((tag) => tag.trim().replace(/^["']|["']$/g, ''))
-    .filter(Boolean);
+  return splitTagCandidates(normalized.replace(/^[\s"'`[]+|[\s"'`\]]+$/g, ''));
 }
 
 export async function runAITask(request: AIRequest) {
