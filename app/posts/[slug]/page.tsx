@@ -84,14 +84,14 @@ export default async function PostPage({
           <article className="mt-6 w-full rounded-3xl border border-[var(--border)] bg-[var(--card)]/60 p-8 shadow-[0_20px_70px_rgba(0,0,0,0.08)] md:p-10">
             <header className="mb-8">
               <h1 className="text-4xl font-semibold tracking-tighter">{post.title}</h1>
-              <div className="flex items-center gap-3 mt-3 text-sm text-[var(--muted)]">
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-[var(--muted)]">
                 <time>{formatDate(post.created_at)}</time>
                 <span>•</span>
                 <span>{getReadingTime(post.content)}</span>
                 {post.tags.length > 0 && (
                   <>
                     <span>•</span>
-                    <div className="flex gap-2">
+                    <div className="flex min-w-0 flex-wrap gap-2">
                       {post.tags.map((tag) => (
                         <Link key={tag} href={`/?tag=${encodeURIComponent(tag)}`} className="tag hover:underline">
                           #{tag}
