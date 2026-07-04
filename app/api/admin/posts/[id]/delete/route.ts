@@ -1,6 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { deletePost } from '@/lib/posts';
+
+function isAllowedRedirect(path: string) {
+  return path === '/' || path === '/admin' || path.startsWith('/admin/') || path.startsWith('/admin?');
+}
+
+function redirectTo(path: string) {
+  return new Response(null, {
+    status: 303,
+    headers: { Location: path },
+  });
+}
 
 export async function POST(
   req: NextRequest,
@@ -8,21 +19,21 @@ export async function POST(
 ) {
   const session = await getSession();
   if (!session) {
-    return NextResponse.redirect(new URL('/login', req.url));
+    return redirectTo('/login');
   }
 
   const { id } = await params;
 
-  let redirectTo = '/admin';
+  let returnPath = '/admin';
   try {
     const formData = await req.formData();
     const rt = formData.get('redirectTo');
-    if (typeof rt === 'string' && (rt === '/' || rt.startsWith('/admin') || rt === '/')) {
-      redirectTo = rt;
+    if (typeof rt === 'string' && isAllowedRedirect(rt)) {
+      returnPath = rt;
     }
   } catch {}
 
   deletePost(parseInt(id, 10));
 
-  return NextResponse.redirect(new URL(redirectTo, req.url));
+  return redirectTo(returnPath);
 }
