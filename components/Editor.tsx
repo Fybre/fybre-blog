@@ -83,7 +83,8 @@ export default function Editor({ content, onChange, placeholder = 'Start writing
       });
 
       if (!res.ok) {
-        alert('Image upload failed');
+        const data = await res.json().catch(() => null) as { error?: string } | null;
+        alert(data?.error || 'Image upload failed');
         return;
       }
 
