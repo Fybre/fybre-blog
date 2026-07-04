@@ -6,6 +6,7 @@ import Editor from '@/components/Editor';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import AttachmentManager from './AttachmentManager';
+import AIAssistControls from '@/components/AIAssistControls';
 
 interface PostData {
   id: number;
@@ -130,6 +131,17 @@ export default function EditPostPage() {
 
         <div className="mt-6">
           <Editor content={content} onChange={setContent} />
+        </div>
+
+        <div className="mt-6">
+          <AIAssistControls
+            title={title}
+            content={content}
+            tags={tags}
+            onTitleChange={setTitle}
+            onContentChange={setContent}
+            onTagsChange={setTags}
+          />
         </div>
 
         <div className="mt-6">

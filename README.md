@@ -8,6 +8,7 @@ Fybre Blog is a small, self-hosted personal blog built with Next.js, SQLite, and
 - Public and private posts, with a configurable default visibility.
 - Main-page search, tag filtering, sorting, and user-selectable card layouts.
 - Admin settings for site title, hero text, new post button text, themes, typography, and custom main-page links.
+- Optional AI writer assist using any OpenAI-compatible chat completions endpoint.
 - Tag management for renaming, merging, and deleting tags.
 - Markdown ZIP export, Markdown/ZIP import, uploaded image/attachment persistence, and RSS feed at `/feed.xml`.
 - Docker-first deployment with SQLite stored in `data/blog.db`.
@@ -99,6 +100,7 @@ After logging in, use `/admin` to configure:
 - **Default post visibility** — controls the initial Public checkbox state for new posts.
 - **Theme** — system, light, dark, midnight, evergreen, warm, or modern.
 - **Typography** — system, editorial, modern, mono accent, or classic.
+- **AI writer assist** — optional OpenAI-compatible endpoint, model, and API key.
 - **Tags** — rename, merge, or delete tags globally.
 
 Posts are edited and deleted from the main page while logged in.
@@ -112,6 +114,7 @@ Go to `/admin/new` while logged in.
 - Add tags as comma-separated values.
 - Paste or drag images directly into the editor, or use the image button.
 - Use the `<>` code block button and language selector for highlighted code.
+- If configured, use **AI assist** to improve drafts, generate summaries, suggest titles, or suggest tags.
 - Add downloadable attachments after the first save from the edit screen.
 
 Private posts and their attachments are visible only while logged in.
@@ -209,6 +212,7 @@ Local data is still stored in:
 ## Production Notes
 
 - Always set a strong `JWT_SECRET`.
+- AI API keys are stored in the SQLite database; only configure this on a host you control.
 - Put the app behind HTTPS if exposed publicly.
 - Back up both `data/` and `public/uploads/`.
 - `data/attachments/` is inside `data/`, so it is included when backing up `data/`.

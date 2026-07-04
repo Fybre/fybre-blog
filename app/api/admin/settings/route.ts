@@ -15,6 +15,10 @@ export async function GET() {
     hero_title: getSetting('hero_title') || 'The Notebook',
     hero_subtitle: getSetting('hero_subtitle') || 'Thoughts, notes, and stories exploring technology, design, and life.',
     new_post_button_text: getSetting('new_post_button_text') || 'Write a story',
+    ai_enabled: getSetting('ai_enabled') === 'true',
+    ai_base_url: getSetting('ai_base_url') || 'https://api.openai.com/v1',
+    ai_model: getSetting('ai_model') || 'gpt-4o-mini',
+    ai_has_api_key: Boolean(getSetting('ai_api_key')),
     profile_links: getSocialLinks(),
   });
 }

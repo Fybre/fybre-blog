@@ -105,6 +105,18 @@ if (!getSetting('hero_subtitle')) {
 if (!getSetting('new_post_button_text')) {
   setSetting('new_post_button_text', 'Write a story');
 }
+if (getSetting('ai_enabled') === null) {
+  setSetting('ai_enabled', 'false');
+}
+if (getSetting('ai_base_url') === null) {
+  setSetting('ai_base_url', 'https://api.openai.com/v1');
+}
+if (getSetting('ai_model') === null) {
+  setSetting('ai_model', 'gpt-4o-mini');
+}
+if (getSetting('ai_api_key') === null) {
+  setSetting('ai_api_key', '');
+}
 if (getSetting('profile_links') === null) {
   const migratedLinks = [
     { title: 'GitHub', url: getSetting('social_github') || '' },

@@ -35,6 +35,9 @@ export interface SettingKey {
   typography: Typography;
   site_title: string;
   new_post_button_text: string;
+  ai_enabled: 'true' | 'false';
+  ai_base_url: string;
+  ai_model: string;
 }
 
 export type Theme = 'system' | 'light' | 'dark' | 'midnight' | 'evergreen' | 'warm' | 'modern';
