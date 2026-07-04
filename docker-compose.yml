@@ -1,0 +1,12 @@
+services:
+  blog:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./public/uploads:/app/public/uploads
+    environment:
+      - JWT_SECRET=${JWT_SECRET:-change-this-secure-secret-in-production}
+      - NODE_ENV=production
+    restart: unless-stopped
