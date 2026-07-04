@@ -72,6 +72,8 @@ export default function EditPostPage() {
       });
 
       if (res.ok) {
+        const updated: PostData & { slug?: string } = await res.json();
+        if (updated.slug) setSlug(updated.slug);
         toast.success('Post saved');
         router.refresh();
         // stay on page

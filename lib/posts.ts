@@ -159,20 +159,29 @@ function getTagsForPost(postId: number): string[] {
   return rows.map((r) => r.name);
 }
 
+function getUniqueSlug(title: string, excludePostId?: number) {
+  const slugBase = slugify(title) || 'post';
+  let slug = slugBase;
+  let counter = 1;
+
+  while (
+    db
+      .prepare('SELECT id FROM posts WHERE slug = ? AND id != ?')
+      .get(slug, excludePostId ?? 0)
+  ) {
+    slug = `${slugBase}-${counter++}`;
+  }
+
+  return slug;
+}
+
 export function createPost(data: {
   title: string;
   content: string;
   is_public: boolean;
   tags: string[];
 }) {
-  const slugBase = slugify(data.title);
-  let slug = slugBase;
-  let counter = 1;
-
-  // Ensure unique slug
-  while (db.prepare('SELECT id FROM posts WHERE slug = ?').get(slug)) {
-    slug = `${slugBase}-${counter++}`;
-  }
+  const slug = getUniqueSlug(data.title);
 
   const result = db
     .prepare(
@@ -197,16 +206,18 @@ export function updatePost(
     tags: string[];
   }
 ) {
-  const current = db.prepare('SELECT slug FROM posts WHERE id = ?').get(id) as { slug: string } | undefined;
+  const current = db.prepare('SELECT title, slug FROM posts WHERE id = ?').get(id) as { title: string; slug: string } | undefined;
   if (!current) throw new Error('Post not found');
 
-  // Only update slug if title changed significantly? For simplicity keep existing slug or re-slugify on request.
-  // Keep slug stable on edit for now.
+  const slug = current.title.trim() === data.title.trim()
+    ? current.slug
+    : getUniqueSlug(data.title, id);
+
   db.prepare(
     `UPDATE posts 
-     SET title = ?, content = ?, is_public = ?, updated_at = CURRENT_TIMESTAMP 
+     SET title = ?, slug = ?, content = ?, is_public = ?, updated_at = CURRENT_TIMESTAMP 
      WHERE id = ?`
-  ).run(data.title, data.content, data.is_public ? 1 : 0, id);
+  ).run(data.title, slug, data.content, data.is_public ? 1 : 0, id);
 
   setTagsForPost(id, data.tags);
 
