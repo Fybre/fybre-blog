@@ -74,6 +74,8 @@ These host folders should be backed up:
 - `data/blog.db` — SQLite database for users, posts, tags, and settings.
 - `public/uploads/` — uploaded images and screenshots.
 
+The Docker image starts as root only long enough to create/chown these mounted folders, then drops to the unprivileged `nextjs` user before running the app.
+
 ### Port
 
 To expose a different host port, change the left side:
@@ -231,6 +233,16 @@ Check that `./data` is mounted and contains `blog.db`:
 
 ```bash
 ls -lah data
+```
+
+### SQLite cannot open the database
+
+If logs show `SQLITE_CANTOPEN` or `unable to open database file`, check host permissions on the mounted folders:
+
+```bash
+mkdir -p data public/uploads
+chmod u+rwx data public/uploads
+docker compose up -d --build
 ```
 
 ### Uploaded images are missing

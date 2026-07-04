@@ -20,8 +20,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install runtime deps for sqlite
-RUN apk add --no-cache libc6-compat
+# Install runtime deps for sqlite and privilege drop
+RUN apk add --no-cache libc6-compat su-exec
 
 ENV NODE_ENV=production
 ENV PORT=3000
@@ -32,6 +32,7 @@ COPY --from=base /app/public ./public
 COPY --from=base /app/.next ./.next
 COPY --from=base /app/node_modules ./node_modules
 COPY --from=base /app/package.json ./package.json
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Ensure data and uploads dirs exist
 RUN mkdir -p data public/uploads
@@ -39,10 +40,9 @@ RUN mkdir -p data public/uploads
 # Use non-root user
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
-RUN chown -R nextjs:nodejs /app
-
-USER nextjs
+RUN chown -R nextjs:nodejs /app && chmod +x /usr/local/bin/docker-entrypoint.sh
 
 EXPOSE 3000
 
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["npm", "start"]
