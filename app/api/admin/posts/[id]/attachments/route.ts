@@ -1,9 +1,29 @@
+import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { createAttachment, getAttachmentsForPost } from '@/lib/attachments';
 import { getPostById } from '@/lib/posts';
 
 const maxAttachmentBytes = 50 * 1024 * 1024;
+
+// Executable/script types are blocked even though attachments are served with
+// Content-Disposition: attachment — defense in depth against a browser or
+// downstream tool that ignores that header.
+const blockedExtensions = new Set([
+  '.exe', '.dll', '.so', '.dylib', '.msi', '.com', '.scr', '.bat', '.cmd',
+  '.ps1', '.psm1', '.sh', '.bash', '.zsh', '.vbs', '.vbe', '.wsf', '.wsh',
+  '.js', '.mjs', '.jar', '.jse', '.app', '.apk', '.php', '.phtml', '.jsp',
+  '.html', '.htm', '.svg',
+]);
+
+const blockedMimeTypes = new Set([
+  'application/x-msdownload',
+  'application/x-executable',
+  'application/x-sh',
+  'application/x-bat',
+  'text/html',
+  'image/svg+xml',
+]);
 
 export async function GET(
   _req: NextRequest,
@@ -41,6 +61,14 @@ export async function POST(
 
   if (file.size > maxAttachmentBytes) {
     return NextResponse.json({ error: 'Attachment must be 50 MB or smaller' }, { status: 400 });
+  }
+
+  const extension = path.extname(file.name || '').toLowerCase();
+  if (blockedExtensions.has(extension) || blockedMimeTypes.has(file.type)) {
+    return NextResponse.json(
+      { error: 'This file type is not allowed as an attachment' },
+      { status: 400 }
+    );
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());

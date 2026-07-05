@@ -63,7 +63,7 @@ services:
       - ./data:/app/data
       - ./public/uploads:/app/public/uploads
     environment:
-      - JWT_SECRET=${JWT_SECRET:-change-this-secure-secret-in-production}
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET to a strong random value in your environment or .env file}
       - NODE_ENV=production
     restart: unless-stopped
 ```

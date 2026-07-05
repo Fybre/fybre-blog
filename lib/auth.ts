@@ -3,9 +3,19 @@ import { cookies } from 'next/headers';
 import { db } from './db';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'change-this-in-production-use-env-var'
-);
+const insecureFallbackSecret = 'change-this-in-production-use-env-var';
+const jwtSecretValue = process.env.JWT_SECRET;
+
+if (!jwtSecretValue) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error(
+      'JWT_SECRET environment variable must be set in production. Refusing to start with an insecure default.'
+    );
+  }
+  console.warn('[auth] JWT_SECRET is not set — using an insecure default for local development only.');
+}
+
+const JWT_SECRET = new TextEncoder().encode(jwtSecretValue || insecureFallbackSecret);
 
 export interface SessionUser {
   id: number;
