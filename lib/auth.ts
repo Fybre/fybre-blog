@@ -6,8 +6,14 @@ import bcrypt from 'bcryptjs';
 const insecureFallbackSecret = 'change-this-in-production-use-env-var';
 const jwtSecretValue = process.env.JWT_SECRET;
 
+// `next build` runs with NODE_ENV=production while collecting page data, before
+// JWT_SECRET is ever injected (that only happens at container runtime). Only
+// enforce this once the app is actually serving requests.
+const isProductionRuntime =
+  process.env.NODE_ENV === 'production' && process.env.NEXT_PHASE !== 'phase-production-build';
+
 if (!jwtSecretValue) {
-  if (process.env.NODE_ENV === 'production') {
+  if (isProductionRuntime) {
     throw new Error(
       'JWT_SECRET environment variable must be set in production. Refusing to start with an insecure default.'
     );
