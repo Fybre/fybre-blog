@@ -6,6 +6,7 @@ import Editor from '@/components/Editor';
 import { toast } from 'sonner';
 import AIAssistControls from '@/components/AIAssistControls';
 import EditorTopBar from '@/components/EditorTopBar';
+import TagInput from '@/components/TagInput';
 
 export default function NewPostPage() {
   const [title, setTitle] = useState('');
@@ -123,13 +124,7 @@ export default function NewPostPage() {
 
         <div className="mt-6">
           <label className="block text-sm mb-1.5 text-[var(--muted)]">Tags (comma separated)</label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            placeholder="nextjs, design, thoughts"
-            className="input"
-          />
+          <TagInput value={tags} onChange={setTags} placeholder="nextjs, design, thoughts" />
         </div>
 
         <div className="mt-6 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)]/45 p-4 text-sm text-[var(--muted)]">

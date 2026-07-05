@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import AttachmentManager from './AttachmentManager';
 import AIAssistControls from '@/components/AIAssistControls';
 import EditorTopBar from '@/components/EditorTopBar';
+import TagInput from '@/components/TagInput';
 
 interface PostData {
   id: number;
@@ -142,13 +143,7 @@ export default function EditPostPage() {
 
         <div className="mt-6">
           <label className="block text-sm mb-1.5 text-[var(--muted)]">Tags (comma separated)</label>
-          <input
-            type="text"
-            value={tags}
-            onChange={(e) => setTags(e.target.value)}
-            className="input"
-            placeholder="react, design"
-          />
+          <TagInput value={tags} onChange={setTags} placeholder="react, design" />
         </div>
 
         <div className="mt-6">
